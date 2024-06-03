@@ -24,7 +24,7 @@ We'll use the `gh repo create` command. I'm assuming this is a `public` repo. We
 
 For a full list of options use `gh repo create --help`.
 
-Here's the command to create the repo: `gh repo create --public --source=.`
+Here's the command to create the repo: `gh repo create simple-repo --public --source=.`
 
 It will create the repo and give the URL where you can access it. Check out the URL to make sure it's up-and-running.
 
