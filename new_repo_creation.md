@@ -37,7 +37,11 @@ Now we just add commits to our local repo and push as usual.
 `git push origin main`
 
 # Additional Steps
+
+## Add a LICENSE
 You may want to add a linense. I'm not sure how to do this via the GitHub CLI. [Here's how to add a license to a repository](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) and [here's the licenses you can add](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). A license is importand because, among other things, it limits your liability.
+
+If you add a license on GitHub, be sure to pull the change into your local branch: `git pull origin main`.
 
 # Troubleshooting
 - Is your main branch called `main`? That's been the default for years now, but older versions of git used the name `master`.
