@@ -1,0 +1,1 @@
+This repo has a collection of useful writings. It is generally a place for me to keep useful guides that I may use in the future.
