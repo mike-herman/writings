@@ -2,7 +2,7 @@
 
 I don't create repos that often. So it's helpful to have a quick reference for how to do so quickly.
 
-This assumes you know how to create a local git repository via `git init` and understand basic git.
+This assumes you know how to create a local git repository via `git init` and understand basic git. It also assumes you already have a GitHub account and are familiar with GitHub.
 
 We'll assume we're creating a project called `simple-repo`.
 
@@ -18,7 +18,7 @@ Now initiate the repo.
 
 # Step 2: Create the Github `origin` repo.
 
-Make sure you [download the GitHub CLI tool](https://cli.github.com/). If you're on a mac, this is as easy as `brew install gh`. The first time you run a `gh` command, the CLI will direct you to a GitHub login page. After that, no need to worry about authentication. Easy!
+Make sure you [download the GitHub CLI tool](https://cli.github.com/). If you're on a mac, this is as easy as `brew install gh`. You'll need to follow the prerequisites [GitHub CLI quickstart](https://docs.github.com/en/github-cli/github-cli/quickstart) your first time.
 
 We'll use the `gh repo create` command. I'm assuming this is a `public` repo. We also need to specify that we're using the current directory as a source.
 
@@ -35,6 +35,9 @@ Now we just add commits to our local repo and push as usual.
 `git add .`
 `git commit -m "Initial commit"`
 `git push origin main`
+
+# Additional Steps
+You may want to add a linense. I'm not sure how to do this via the GitHub CLI. [Here's how to add a license to a repository](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) and [here's the licenses you can add](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). A license is importand because, among other things, it limits your liability.
 
 # Troubleshooting
 - Is your main branch called `main`? That's been the default for years now, but older versions of git used the name `master`.
