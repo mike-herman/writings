@@ -3,9 +3,8 @@
 This guide has steps to:
 
 1. Create a new Julia Genie app.
-2. Dockerize the app.
-3. Deploy the app using fly.io
-4. Set up a CI/CD pipeline for rapid development
+2. Dockerize the app and deploy the app using fly.io
+3. Set up a CI/CD pipeline for rapid development
 
 ## Why all this?
 
@@ -92,7 +91,7 @@ No need to restart the server. You should be able to refresh the browser and see
 
 Obviously the project will be more than this. You'll probably need to replace this with a better starter page. But...and this is important...**it's better to start building your app once it's running!** So we're going to focus on getting this up-and-running before making any more changes.
 
-# Step 2: Dockerize the app
+# Step 2: Dockerize the app and deploy the app using fly.io
 
 If you're not familiar with Docker, it is a way to encapsulate your app in a "mini-OS" that reliably runs on any machine. There's a lot to it, but we won't be going into the nitty-gritty detail here. You _will_ need to make sure you [download Docker](https://www.docker.com/products/docker-desktop/) if you haven't already.
 
@@ -130,3 +129,36 @@ Now we need to make the Dockerfile using the CLI command `touch Dockerfile`. Ope
     ENTRYPOINT ["julia", "--project", "-e", "using GenieFramework; Genie.loadapp(); up(async=false);"]
 
 It's worth noting that I've changed the first line to explicitly use `julia 1.10`.
+
+It will take a minute or so to load up. Once it does, you should be able to go to [https://localhost:8000](https://localhost:8000) and see the page we edited.
+
+Now follow the remaining instructions to launch via [fly.io](https://fly.io). You'll have to create an account and upload a credit card. **THIS WILL COST YOU MONEY.** But as of this writing, a "Hobby" account is $5/month. The costs scale with usage, memory, storage, etc though. So keep an eye on it and be careful.
+
+Once you've deployed your app you should be able to access it at [https://gfloserver.fly.dev](https://gfloserver.fly.dev). It's live! It's on the internet!
+
+We're getting close. The last thing to do is implement a CI/CD pipeline.
+
+## Debugging & Troubleshooting
+
+### Troubleshooting Docker
+I recommend downloading the Docker VS Code extension. I find it more intuitive to use than the Docker launcher.
+
+If you run your app in Docker and it doesn't seem to be working, something may be erroring out. Luckily, there are logs. Click on the VS Code Docker extension and under the "CONTAINERS" section locate the name of your container. Run it once. If it stops right away, something might have errored out. You can right-click the container and "View logs". This will show the logs in the terminal.
+
+This will show you both errors thrown by Julia if something is wrong and the generic Genie screen if something isn't.
+
+I only had one bug: the `GenieFramework` package wasn't automatically added to `Project.toml`. I had to `julia` in then `using Pkg; Pkg.add("GenieFramework")` and that fixed it.
+
+### Troubleshooting fly.io
+
+**How to look at the logs**. This can be pretty helpful. You can view them through the dashboard at fly.io or in the terminal by typing `fly logs -a gfloserver`. When viewed from the command line, it will stream the logs live. This can be especially helpful when deploying or restarting your app. When the Genie server successfully starts up, the log will give you the big ole "GENIE" logo, which lets you know it's up-and-running.
+
+**Re-deploying instead of re-launching**.If you already launched an app but it isn't working **don't follow the `fly launch` instructions again!** This will launch a _new_ app instead of updating the existing one. Instead, use `fly deploy` to re-deploy your app with any changes.
+
+**Out-of-memory**. I ran into a memory issue. I was able to deploy the Genie app locally via Docker. But when I loaded it to fly.io it wouldn't work. While I was inspecting the logs I got an email from fly.io letting me know the machine had crashed because it ran out of memory! It included instructions for updating the memory from flyctl, which was pretty nice.
+
+# Step 3: Set up a CI/CD pipeline
+
+CI/CD stands for "continuous integration/continuous development" or "continuous integration/continuous deployment", depending who you ask. Either way, the general principal is that deploying your app is easy and automated.
+
+We'll use github actions to set this up.
