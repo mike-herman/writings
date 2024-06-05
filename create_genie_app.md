@@ -203,3 +203,14 @@ _Now_ you can commit your changes and push them to the GitHub repo. Pushing them
 Let's test it by making a small update and checking that it worked.
 
 In your project open the file `public/welcome.html` again. Change the `<h3>` field where it says "It's alive!" to say "It's alive! (Now with GitHub Actions)". Commit and push the changes. Wait for the deployment to go through. Then navigate to the web page and take a look.
+
+# Development workflow
+
+We can now focus on developing our app. The general workflow steps are...
+- Comment out the `ENV["GENIE_ENV"] = "prod"` in the file `config/env/global.jl`. This will let your app update quickly during development. **Remember to undo this change before committing to github.**
+- Make the changes you need to make.
+- Run Genie locally on your machine.
+- If that works, build and run the Docker image on your machine.
+- If that works, uncomment the prod env, commit, and load your changes.
+
+A good enhancement to this flow would be adding environment variables that handle the genie environment for us and adding a testing build environment to GitHub Actions. But now that we have _something_ live on the internet, it's time to start developing.
