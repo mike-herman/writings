@@ -4,7 +4,7 @@ This guide has steps to:
 
 1. Create a new Julia Genie app.
 2. Dockerize the app and deploy the app using fly.io
-3. Set up a CI/CD pipeline for rapid development
+3. Set up a CI/CD workflow for rapid development
 
 ## Why all this?
 
@@ -136,7 +136,7 @@ Now follow the remaining instructions to launch via [fly.io](https://fly.io). Yo
 
 Once you've deployed your app you should be able to access it at [https://gfloserver.fly.dev](https://gfloserver.fly.dev). It's live! It's on the internet!
 
-We're getting close. The last thing to do is implement a CI/CD pipeline.
+We're getting close. The last thing to do is implement a CI/CD workflow.
 
 ## Debugging & Troubleshooting
 
@@ -155,10 +155,51 @@ I only had one bug: the `GenieFramework` package wasn't automatically added to `
 
 **Re-deploying instead of re-launching**.If you already launched an app but it isn't working **don't follow the `fly launch` instructions again!** This will launch a _new_ app instead of updating the existing one. Instead, use `fly deploy` to re-deploy your app with any changes.
 
-**Out-of-memory**. I ran into a memory issue. I was able to deploy the Genie app locally via Docker. But when I loaded it to fly.io it wouldn't work. While I was inspecting the logs I got an email from fly.io letting me know the machine had crashed because it ran out of memory! It included instructions for updating the memory from flyctl, which was pretty nice.
+**Out-of-memory**. I ran into a memory issue. I was able to deploy the Genie app locally via Docker. But when I loaded it to fly.io it wouldn't work. While I was inspecting the logs I got an email from fly.io letting me know the machine had crashed because it ran out of memory! You can run a command to increase the memory on a machine, but this won't be a permanent fix. To up the memory permanently, open the file `fly.toml` in your project. Under the `[[vm]]` section, the `memory` value defaults to `'1gb'`. I had to change it to `'2gb'`.
 
-# Step 3: Set up a CI/CD pipeline
+**Be patient when deploying**
+The deployment can take a while. If it doesn't work right away, go get a cup of coffee, come back in five minutes, and then check.
+
+# Step 3: Set up a CI/CD workflow
 
 CI/CD stands for "continuous integration/continuous development" or "continuous integration/continuous deployment", depending who you ask. Either way, the general principal is that deploying your app is easy and automated.
 
-We'll use github actions to set this up.
+Fly.io has [a great write-up](https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/) on how to integrate GitHub actions, which we'll be using.
+
+This specific workflow is simple. When the main branch is updated, it automatically deploys the change to your fly.io app.
+
+We'll skip forward to step 5, where we get the FLy API deploy token by running `fly tokens create deploy -a gfloserver -x 999999h`. **Copy what prints out to the terminal and keep it somewhere secret and safe.**
+
+Now we add the key to GitHub.
+
+> Go to your newly-created repository on GitHub and select Settings.
+> Under Secrets and variables, select Actions, and then create a new repository secret called FLY_API_TOKEN with the value of the token created above. 
+
+Now we add the yaml file to the project. Create the directory `.github/workflows` and create a file called `.github/workflows/fly.yml`. Here's the code you'll need to paste in:
+
+    name: Fly Deploy
+    on:
+    push:
+        branches:
+        - main
+    jobs:
+    deploy:
+        name: Deploy app
+        runs-on: ubuntu-latest
+        concurrency: deploy-group    # optional: ensure only one action runs at a time
+        steps:
+        - uses: actions/checkout@v4
+        - uses: superfly/flyctl-actions/setup-flyctl@master    # THIS SHOULD BE "master", regardless of your base branch name.
+        - run: flyctl deploy --remote-only
+            env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+Next you will commit the changes and push them to the GitHub repo. **But first!** It's fun to see if things are deploying in real time! You'll be able to see this in two places: the GitHub Actions page for your repo and the logs from fly.io. So let's get ready.
+- Open your GitHub repo and click on the Actions tab. There won't be anything here yet. We'll refresh the page after we push changes.
+- In the terminal run `fly logs -a gfloserver` to start the server logs.
+
+_Now_ you can commit your changes and push them to the GitHub repo. Pushing them to the repo will both _create_ the rule and _activate_ it, meaning the Fly.io app should automatically re-delpoy. If you refresh the Actions tab in the project GitHub, you'll see it running. And if you keep an eye on the fly.io logs, you'll eventually see the big "GENIE" logo, which means it worked!.
+
+Let's test it by making a small update and checking that it worked.
+
+In your project open the file `public/welcome.html` again. Change the `<h3>` field where it says "It's alive!" to say "It's alive! (Now with GitHub Actions)". Commit and push the changes. Wait for the deployment to go through. Then navigate to the web page and take a look.
